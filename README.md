@@ -15,8 +15,6 @@
 
 ![ShareBite Demo](ShareBiteDemo.png)
 
-If your demo file is placed in the root repository, make sure the file name in the README matches the uploaded file name exactly.
-
 ---
 
 ## Overview
