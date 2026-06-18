@@ -1,0 +1,42 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: sharebite_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: sharebite
+      POSTGRES_USER: sharebite
+      POSTGRES_PASSWORD: sharebite
+    ports:
+      - "5432:5432"
+    volumes:
+      - sharebite_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sharebite -d sharebite"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    container_name: sharebite_backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PORT: 3000
+      NODE_ENV: development
+      DATABASE_URL: postgres://sharebite:sharebite@postgres:5432/sharebite
+      JWT_SECRET: sharebite_super_secret_jwt_key_2026
+      JWT_EXPIRES_IN: 7d
+      DB_AUTO_MIGRATE: "true"
+      SEED_DEMO: "true"
+      ML_SERVICE_URL: http://ml_model:5001
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./backend/uploads:/app/uploads
+
+volumes:
+  sharebite_pgdata:
